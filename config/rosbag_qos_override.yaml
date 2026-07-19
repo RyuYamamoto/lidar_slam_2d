@@ -1,0 +1,15 @@
+# QoS override for `ros2 bag play`.
+#
+# rosbag2 replays /tf_static with the default (volatile) QoS when the bag has no
+# recorded offered QoS profile. The tf2 TransformListener subscribes to /tf_static
+# with transient_local durability, so the volatile publisher is QoS-incompatible and
+# the static transforms (e.g. base_link -> base_laser) never reach the SLAM node.
+#
+# Force /tf_static to transient_local so the latched static TF is delivered:
+#   ros2 bag play <bag> --clock \
+#     --qos-profile-overrides-path <this_file>
+/tf_static:
+  history: keep_last
+  depth: 1
+  reliability: reliable
+  durability: transient_local

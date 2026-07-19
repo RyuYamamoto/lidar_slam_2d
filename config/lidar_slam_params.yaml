@@ -1,0 +1,83 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+
+    # --- frames (override per bag) ---
+    frame:
+      map_frame: map
+      odom_frame: odom
+      base_frame: base_link          # corridor-loops bag uses base_link (odom->base_link)
+
+    # --- topics (override per bag) ---
+    topic:
+      scan_topic: scan
+      use_odom_topic: true          # true=Odometry topic, false=TF odom->base
+      odom_topic: odom
+
+    # --- scan preprocessing ---
+    scan:
+      min_range: 0.1
+      max_range: 12.0               # corridor-loops LiDAR range_max = 12.0 m
+      point_skip: 1                 # 1 = use all points
+
+    # --- keyframe generation ---
+    keyframe:
+      trans_threshold: 0.5          # [m]
+      rot_threshold: 0.3            # [rad]
+
+    # --- ICP front-end ---
+    icp:
+      variant: point_to_line        # point_to_point / point_to_line
+      max_iterations: 30
+      max_correspondence_dist: 1.0  # [m] correspondence gate
+      convergence_eps: 0.0001
+      fitness_threshold: 0.5        # mean residual gate [m] (tune per bag)
+      normal_neighbor_num: 5
+      submap_size: 5                # reference keyframes (1 = scan-to-scan)
+
+    # --- back-end information ---
+    graph:
+      prior_sigma_xy: 0.01
+      prior_sigma_yaw: 0.01
+      between_sigma_xy: 0.05          # best-constrained ICP direction stddev [m]
+      between_sigma_yaw: 0.03
+      odom_fallback_sigma_scale: 5.0  # also the floor scale for degenerate ICP directions
+      use_icp_hessian_info: true      # anisotropic between-factor info from ICP Hessian
+      odom_between_sigma_xy: 0.1       # odom BetweenFactor stddev [m] (degeneracy support)
+      odom_between_sigma_yaw: 0.05
+
+    # --- loop closure ---
+    loop:
+      enable: true
+      search_radius: 3.0             # [m] candidate search radius (map frame)
+      min_id_gap: 30                 # min keyframe index gap to qualify as a loop
+      submap_size: 5                 # half-window of the candidate submap
+      fitness_threshold: 0.3         # ICP residual gate to accept a loop [m]
+      max_candidates: 1              # max loops added per detection
+      sigma_xy: 0.1                  # loop constraint stddev [m]
+      sigma_yaw: 0.05                # loop constraint stddev [rad]
+      use_robust: true               # Huber robust kernel on loop factors
+      huber_delta: 0.1
+      extra_update_iterations: 2     # extra iSAM2 updates after a loop is added
+      icp_max_iterations: 40
+      icp_max_correspondence_dist: 2.0  # [m] wider gate for loop ICP
+
+    # --- map output ---
+    map:
+      resolution: 0.05
+      auto_resize: true
+      width: 200                    # used when auto_resize=false
+      height: 200
+      origin_x: -5.0
+      origin_y: -5.0
+      margin: 2.0
+      publish_rate: 1.0             # [Hz]
+      occupied_threshold: 0.65
+      free_threshold: 0.25
+      hit_prob: 0.7
+      miss_prob: 0.4
+      min_hits: 2                   # consensus: min endpoints per cell to mark occupied
+
+    # --- TF publish ---
+    tf:
+      publish_rate: 30.0            # [Hz] map->odom
