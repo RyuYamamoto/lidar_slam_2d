@@ -34,6 +34,20 @@ target_include_directories(lidar_slam PUBLIC
 )
 target_link_libraries(lidar_slam PUBLIC Eigen3::Eigen gtsam)
 
+# ROS node: thin adapter that wraps the core library.
+ament_auto_add_library(lidar_slam_node_component SHARED
+  src/lidar_slam_node.cpp
+)
+target_include_directories(lidar_slam_node_component PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_link_libraries(lidar_slam_node_component lidar_slam gtsam)
+
+rclcpp_components_register_node(lidar_slam_node_component
+  PLUGIN "lidar_slam::LidarSlamNode"
+  EXECUTABLE lidar_slam_node
+)
+
 install(
   TARGETS lidar_slam
   ARCHIVE DESTINATION lib
@@ -46,4 +60,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_auto_package()
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+  config
+  rviz
+)
