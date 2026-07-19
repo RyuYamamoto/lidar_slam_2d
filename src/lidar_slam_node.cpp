@@ -215,8 +215,13 @@ std::optional<Eigen::Isometry2d> LidarSlamNode::get_odom_pose(const rclcpp::Time
   }
 
   try {
-    const auto transform =
-      tf_buffer_->lookupTransform(odom_frame_, base_frame_, stamp, tf2::durationFromSec(0.1));
+    geometry_msgs::msg::TransformStamped transform;
+    try {
+      transform =
+        tf_buffer_->lookupTransform(odom_frame_, base_frame_, stamp, tf2::durationFromSec(0.1));
+    } catch (const tf2::ExtrapolationException &) {
+      transform = tf_buffer_->lookupTransform(odom_frame_, base_frame_, tf2::TimePointZero);
+    }
     const Eigen::Isometry2d pose = transform_to_se2(transform.transform);
     latest_odom_pose_ = pose;
     return pose;
