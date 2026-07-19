@@ -10,23 +10,6 @@
 
 Only Eigen and GTSAM are required by the core; the ROS node is a thin adapter.
 
-## Layout
-
-```
-src/
-  lidar_slam.{hpp,cpp}         # NavyuSlam-free core pipeline (LidarSlam), ROS-independent
-  lidar_slam_node.{hpp,cpp}    # ROS node (LidarSlamNode): subscriptions, TF, type adaptation
-  icp_scan_matcher.*           # ICP front-end
-  pose_graph.*                 # GTSAM iSAM2 wrapper
-  keyframe_manager.*           # keyframe container / submap construction
-  loop_detector.*              # loop closure candidate search + verification
-  occupancy_grid_mapper.*      # log-odds occupancy grid (returns a plain GridMap)
-  keyframe.hpp / se2.hpp / scan_matcher_base.hpp
-config/  launch/  rviz/
-```
-
-Headers live next to the sources under `src/`.
-
 ## Build
 
 ```bash
@@ -44,7 +27,3 @@ ros2 launch lidar_slam_2d lidar_slam_bringup.launch.py \
 
 Publishes `map`->`odom` TF and `/map` (`nav_msgs/OccupancyGrid`). Topic names, frame names
 and thresholds are parameters; see `config/lidar_slam_params.yaml`.
-
-## License
-
-MIT
